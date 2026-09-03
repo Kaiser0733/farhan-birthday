@@ -400,8 +400,11 @@ music.addEventListener('playing', function(){
   fadeAudio(0.8, 1200); // arrive fast enough to be noticed, soft enough to stay calm
 });
 music.addEventListener('pause', function(){ syncToggle(false); });
-/* any tap, anywhere, revives the music while it is wanted but silent */
-document.addEventListener('pointerdown', function(){
+/* any tap, anywhere except the button itself, revives the music while wanted but silent.
+   (toggle taps belong to the click handler below — reviving here would start
+   playback a breath before the click reads state, and the click would mute its own tap) */
+document.addEventListener('pointerdown', function(e){
+  if (e.target && e.target.closest && e.target.closest('#musicToggle')) return;
   if (musicWanted && music.paused){
     var p = null;
     try { p = music.play(); } catch (e) { p = null; }
@@ -669,15 +672,15 @@ cake.addEventListener('keydown', function(e){
 
 /* ---- music toggle ---- */
 musicToggle.addEventListener('click', function(){
-  var on = musicToggle.getAttribute('aria-pressed') === 'true';
-  if (on){
+  if (music.paused){
+    /* silent — whatever the label claims — so this tap means PLAY */
+    syncToggle(true);
+    playMusic();
+  } else {
     musicWanted = false;
     syncToggle(false);
     fadeAudio(0, 500);
     setTimeout(function(){ if (!musicWanted) music.pause(); }, 550);
-  } else {
-    syncToggle(true);
-    playMusic();
   }
 });
 
