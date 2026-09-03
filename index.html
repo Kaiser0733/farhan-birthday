@@ -104,38 +104,21 @@ body{
 .letter .line.strong{color:var(--gold-bright);font-weight:600}
 .letter .line.gap{height:1.1em}
 
-/* ---------- CAKE ---------- */
+/* ---------- CAKE (hand-drawn SVG patisserie) ---------- */
 .cake-sec{min-height:92vh;min-height:92svh;display:grid;place-items:center;text-align:center;padding:4rem 1.5rem 7rem}
 .cake-title{font-size:clamp(1.3rem,5vw,1.9rem);font-style:italic;color:var(--gold-bright);margin-bottom:3.2rem}
-.cake{position:relative;width:230px;margin:0 auto;cursor:pointer;user-select:none}
-.candle{position:absolute;left:50%;top:-46px;width:12px;height:52px;transform:translateX(-50%);
-  background:repeating-linear-gradient(-32deg,var(--ink) 0 7px,var(--gold) 7px 14px);
-  border-radius:3px 3px 0 0;box-shadow:0 0 18px rgba(217,180,92,.25)}
-.wick{position:absolute;left:50%;top:-53px;width:2px;height:7px;transform:translateX(-50%);background:#3a2d1a}
-.flame{position:absolute;left:50%;top:-75px;width:14px;height:22px;transform:translateX(-50%);
-  background:radial-gradient(ellipse at 50% 78%,#fff8e6 0%,#ffd98a 42%,#e8963c 78%,transparent 100%);
-  border-radius:50% 50% 50% 50%/62% 62% 38% 38%;
-  filter:drop-shadow(0 0 12px rgba(255,196,90,.85)) drop-shadow(0 0 34px rgba(217,150,60,.4));
-  animation:flicker 130ms ease-in-out infinite alternate;transform-origin:50% 100%;
-  transition:opacity .5s ease,transform .5s ease}
-.flame.out{opacity:0;transform:translateX(-50%) scale(.25) translateY(6px)}
-@keyframes flicker{from{transform:translateX(-50%) scale(1) rotate(-2.5deg)}to{transform:translateX(-50%) scale(1.12) rotate(2.5deg)}}
-.smoke{position:absolute;left:50%;top:-58px;width:8px;height:8px;border-radius:50%;
-  background:rgba(200,200,200,.45);filter:blur(3px);transform:translateX(-50%);
+.cake{position:relative;width:230px;margin:0 auto;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.cake svg{display:block;width:100%;height:auto;overflow:visible}
+#flameG{transform-box:fill-box;transform-origin:50% 100%;animation:flick .13s ease-in-out infinite alternate;transition:opacity .45s ease}
+@keyframes flick{from{transform:scale(1) rotate(-2.5deg)}to{transform:scale(1.14) rotate(2.5deg)}}
+#flameGlow{animation:glowpulse 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes glowpulse{0%,100%{opacity:.45}50%{opacity:.7}}
+.cake.wished #flameG,.cake.wished #flameGlow{opacity:0}
+.cake.wished #flameG,.cake.wished #flameGlow{animation:none}
+.smoke{position:absolute;left:50%;top:56px;width:9px;height:9px;border-radius:50%;
+  background:rgba(200,200,200,.5);filter:blur(3px);transform:translateX(-50%);
   animation:smokeup 2.6s ease-out forwards}
-@keyframes smokeup{0%{opacity:.8;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-70px) scale(3)}}
-.tier{position:relative;margin:0 auto;border-radius:10px 10px 6px 6px}
-.tier-top{width:150px;height:64px;background:linear-gradient(#f0e2c4 0 18px,#2b1f14 18px 100%)}
-.tier-top::after{content:"";position:absolute;inset:0;border-radius:10px 10px 6px 6px;
-  background:radial-gradient(circle at 18px 24px,var(--gold-bright) 3px,transparent 3.5px);
-  background-size:26px 12px;opacity:.7}
-.tier-bot{width:216px;height:76px;margin-top:-4px;background:linear-gradient(#f0e2c4 0 20px,#241a12 20px 100%)}
-.tier-bot::after{content:"";position:absolute;inset:0;border-radius:10px 10px 6px 6px;
-  background:radial-gradient(circle at 16px 26px,var(--gold-bright) 3px,transparent 3.5px);
-  background-size:28px 13px;opacity:.55}
-.tier-top,.tier-bot{box-shadow:inset 0 -14px 22px rgba(0,0,0,.4),0 16px 34px rgba(0,0,0,.45)}
-.plate{width:270px;height:16px;margin:2px auto 0;border-radius:50%;
-  background:linear-gradient(#3a4a42,#1c2823);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+@keyframes smokeup{0%{opacity:.8;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-80px) scale(3.2)}}
 .tap-hint{margin-top:3.4rem;color:var(--ink-dim);font-style:italic;font-size:clamp(1rem,3.6vw,1.25rem);transition:color .6s ease}
 .tap-hint.wished{color:var(--gold-bright)}
 
@@ -231,12 +214,116 @@ footer .credit{margin-top:1rem;font-size:.62rem;letter-spacing:.14em;text-transf
     <div>
       <p class="cake-title">one wish, brother — make it a big one</p>
       <div class="cake" id="cake" role="button" tabindex="0" aria-label="Make a wish, then tap to blow out the candle">
-        <div class="flame" id="flame"></div>
-        <div class="wick"></div>
-        <div class="candle"></div>
-        <div class="tier tier-top"></div>
-        <div class="tier tier-bot"></div>
-        <div class="plate"></div>
+        <svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+          <defs>
+            <radialGradient id="flameGrad" cx="50%" cy="78%" r="75%">
+              <stop offset="0%" stop-color="#fff8e6"/>
+              <stop offset="42%" stop-color="#ffd98a"/>
+              <stop offset="78%" stop-color="#e8963c"/>
+              <stop offset="100%" stop-color="#e8963c" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="plateGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3a4a42"/>
+              <stop offset="100%" stop-color="#16211c"/>
+            </linearGradient>
+            <linearGradient id="creamTop" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#d8c8a8"/>
+              <stop offset="50%" stop-color="#f5ead2"/>
+              <stop offset="100%" stop-color="#cdbc99"/>
+            </linearGradient>
+            <linearGradient id="chocTop" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#241a12"/>
+              <stop offset="45%" stop-color="#3d2b1c"/>
+              <stop offset="100%" stop-color="#1c130c"/>
+            </linearGradient>
+          </defs>
+
+          <!-- ground shadow -->
+          <ellipse cx="130" cy="236" rx="104" ry="13" fill="#000" opacity=".42"/>
+
+          <!-- plate -->
+          <ellipse cx="130" cy="224" rx="112" ry="18" fill="url(#plateGrad)" stroke="#d9b45c" stroke-opacity=".28" stroke-width="1.5"/>
+          <ellipse cx="130" cy="220" rx="112" ry="18" fill="#4a5c53" opacity=".9"/>
+
+          <!-- bottom tier: chocolate with gold-dusted cream drip -->
+          <g id="tierB">
+            <path d="M 26 168 L 26 196 A 104 17 0 0 0 234 196 L 234 168 A 104 17 0 0 0 26 168 Z" fill="#2b1e13"/>
+            <path d="M 26 168 A 104 17 0 0 0 234 168 A 104 17 0 0 0 26 168 Z" fill="url(#chocTop)"/>
+            <ellipse cx="130" cy="196" rx="104" ry="17" fill="#1a120a"/>
+            <!-- irregular drip: bottom -->
+            <path d="M 26 168
+                     C 26 168 40 176 52 173 C 58 172 60 166 66 167
+                     C 74 168 76 180 82 181 C 88 182 92 170 100 170
+                     C 110 170 112 186 120 186 C 128 186 132 172 142 172
+                     C 152 172 154 184 162 183 C 170 182 172 171 182 170
+                     C 192 169 194 178 202 177 C 212 176 224 172 234 168
+                     A 104 17 0 0 0 26 168 Z" fill="#e8dcc4" opacity=".96"/>
+            <!-- drips hanging below the band -->
+            <path d="M 66 172 q 3 14 8 16 q 5 2 6 -8 q 1 -8 -14 -8 Z" fill="#e8dcc4"/>
+            <path d="M 120 175 q 2 12 6 13 q 4 1 5 -7 q 1 -7 -11 -6 Z" fill="#e8dcc4"/>
+            <path d="M 182 172 q 2 10 5 11 q 3 1 4 -6 q 1 -6 -9 -5 Z" fill="#e8dcc4"/>
+          </g>
+
+          <!-- top tier: cream with chocolate drip -->
+          <g id="tierT">
+            <path d="M 52 128 L 52 152 A 78 13 0 0 0 182 152 L 182 128 A 78 13 0 0 0 52 128 Z" fill="#efe3c8"/>
+            <path d="M 52 128 A 78 13 0 0 0 182 128 A 78 13 0 0 0 52 128 Z" fill="url(#creamTop)"/>
+            <ellipse cx="130" cy="152" ry="13" rx="78" fill="#d5c7a6"/>
+            <!-- chocolate drip: top tier -->
+            <path d="M 52 128
+                     C 56 133 64 136 70 134 C 76 132 78 126 84 127
+                     C 90 128 92 138 98 138 C 104 138 106 128 114 128
+                     C 122 128 124 140 132 140 C 140 140 142 130 150 129
+                     C 158 128 160 136 168 135 C 176 134 180 130 182 128
+                     A 78 13 0 0 0 52 128 Z" fill="#2e2013"/>
+            <path d="M 84 133 q 2 11 5 12 q 3 1 4 -6 q 1 -6 -9 -6 Z" fill="#2e2013"/>
+            <path d="M 150 133 q 2 9 4 10 q 2 1 3 -5 q 1 -5 -7 -5 Z" fill="#2e2013"/>
+          </g>
+
+          <!-- gold pearls on the top tier base rim -->
+          <g id="pearlsTop">
+            <circle cx="58" cy="140" r="3.4" fill="#f0d48a"/><circle cx="58" cy="140" r="1.3" fill="#fff3cf"/>
+            <circle cx="74" cy="145" r="3.4" fill="#f0d48a"/><circle cx="74" cy="145" r="1.3" fill="#fff3cf"/>
+            <circle cx="90" cy="148" r="3.4" fill="#f0d48a"/><circle cx="90" cy="148" r="1.3" fill="#fff3cf"/>
+            <circle cx="106" cy="150" r="3.4" fill="#e3c577"/><circle cx="106" cy="150" r="1.3" fill="#fff3cf"/>
+            <circle cx="122" cy="151" r="3.4" fill="#f0d48a"/><circle cx="122" cy="151" r="1.3" fill="#fff3cf"/>
+            <circle cx="138" cy="150" r="3.4" fill="#e3c577"/><circle cx="138" cy="150" r="1.3" fill="#fff3cf"/>
+            <circle cx="154" cy="148" r="3.4" fill="#f0d48a"/><circle cx="154" cy="148" r="1.3" fill="#fff3cf"/>
+            <circle cx="170" cy="145" r="3.4" fill="#e3c577"/><circle cx="170" cy="145" r="1.3" fill="#fff3cf"/>
+            <circle cx="184" cy="141" r="3.4" fill="#f0d48a"/><circle cx="184" cy="141" r="1.3" fill="#fff3cf"/>
+          </g>
+
+          <!-- pistachio leaves on the top tier, off-center (asymmetric on purpose) -->
+          <g id="pistachio">
+            <path d="M 100 122 q 10 -8 22 -4 q -8 10 -22 4 Z" fill="#4a7c59" opacity=".85"/>
+            <path d="M 136 122 q 8 -10 20 -7 q -6 11 -20 7 Z" fill="#3fa98a" opacity=".7"/>
+            <circle cx="121" cy="118" r="3" fill="#c94f7c" opacity=".8"/>
+            <circle cx="157" cy="117" r="2.6" fill="#c94f7c" opacity=".7"/>
+          </g>
+
+          <!-- gold crescent + star topper, planted into the cream beside the candle -->
+          <g id="topper" transform="translate(100,108)">
+            <path d="M 10 0 A 15 15 0 1 0 10 20 A 11.5 11.5 0 1 1 10 0 Z" fill="#e8c96a" transform="translate(-10,-10)"/>
+            <path d="M 10 2 L 11.8 7 L 17 7.2 L 12.8 10.5 L 14.2 15.5 L 10 12.6 L 5.8 15.5 L 7.2 10.5 L 3 7.2 L 8.2 7 Z" fill="#f0d48a" transform="translate(9,-3) scale(.9)" opacity=".95"/>
+          </g>
+
+          <!-- candle -->
+          <g id="candleG" transform="translate(130,124)">
+            <rect x="-6" y="-46" width="12" height="46" rx="3" fill="#f2e8d5"/>
+            <path d="M -6 -46 q 6 -3 12 0 L 6 0 q -6 2 -12 0 Z" fill="#d9b45c" opacity=".85"/>
+            <path d="M -2 -46 L -2 0" stroke="#d9b45c" stroke-width="3.6" stroke-dasharray="6 6" opacity=".8"/>
+            <path d="M 2 -46 L 2 0" stroke="#b89956" stroke-width="3.6" stroke-dasharray="6 6" opacity=".6"/>
+            <ellipse cx="0" cy="0" rx="6" ry="2" fill="#e8c96a"/>
+          </g>
+
+          <!-- wick + flame -->
+          <line x1="130" y1="69" x2="130" y2="77" stroke="#3a2d1a" stroke-width="2"/>
+          <circle id="flameGlow" cx="130" cy="59" r="16" fill="rgb(255,196,90)" opacity=".5"/>
+          <g id="flameG">
+            <path d="M 130 39 C 136 47 138 55 130 63 C 122 55 124 47 130 39 Z" fill="url(#flameGrad)"/>
+          </g>
+        </svg>
+        <span class="smoke" id="smokeEl" style="display:none"></span>
       </div>
       <p class="tap-hint" id="tapHint">make a wish… then tap the flame</p>
     </div>
@@ -268,6 +355,7 @@ var stage = document.getElementById('stage');
 var music = document.getElementById('bgm');
 var musicToggle = document.getElementById('musicToggle');
 music.volume = 0;
+var musicPending = false;  // true if play() was rejected once
 
 /* ---- audio fade ---- */
 function fadeAudio(target, ms){
@@ -279,6 +367,22 @@ function fadeAudio(target, ms){
   }
   requestAnimationFrame(step);
 }
+
+/* play with one silent retry: if the browser rejected the first gesture,
+   the next tap anywhere finishes the job */
+function playMusic(){
+  if (!music.paused) return;
+  var p = music.play();
+  if (p && p.catch){
+    p.then(function(){ musicPending = false; fadeAudio(0.8, 2600); })
+     .catch(function(){ musicPending = true; });
+  } else {
+    fadeAudio(0.8, 2600);
+  }
+}
+document.addEventListener('pointerdown', function(){
+  if (musicPending) playMusic();
+}, true);
 
 /* ---- canvases ---- */
 var sky = document.getElementById('sky'), sctx = sky.getContext('2d');
@@ -389,7 +493,7 @@ var LINES = [
   'The world is luckier that you were born.',
   '',
   'Barakallahu feek. Happy birthday, brother.',
-  '— with love, from LO'
+  '— with love, from Amardeep'
 ];
 var letterEl = document.getElementById('letter');
 var letterRun = false;
@@ -470,7 +574,7 @@ document.getElementById('enterBtn').addEventListener('click', function(){
   if (entered) return;
   entered = true;
 
-  music.play().then(function(){ fadeAudio(0.55, 2600); }).catch(function(){});
+  playMusic();
   gate.classList.add('gone');
   setTimeout(function(){ gate.style.display = 'none'; }, 1200);
   stage.classList.add('open');
@@ -501,21 +605,20 @@ if ('IntersectionObserver' in window){
 
 /* ---- cake / wish ---- */
 var cake = document.getElementById('cake');
-var flame = document.getElementById('flame');
+var smokeEl = document.getElementById('smokeEl');
 var tapHint = document.getElementById('tapHint');
 var wished = false;
 function makeWish(){
   if (wished) return;
   wished = true;
-  flame.classList.add('out');
-  var smoke = document.createElement('span');
-  smoke.className = 'smoke';
-  cake.appendChild(smoke);
+  cake.classList.add('wished');
+  smokeEl.style.display = 'block';
   tapHint.textContent = 'MashaAllah — ameen to that wish, akhi.';
   tapHint.classList.add('wished');
-  var r = flame.getBoundingClientRect();
+  var r = cake.getBoundingClientRect();
+  var cx = r.left + r.width * 0.5, cy = r.top + r.height * 0.12;
   if (!prefersReduced){
-    burst(r.left + r.width / 2, r.top + r.height / 2);
+    burst(cx, cy);
     setTimeout(function(){ burst(W / 2, H / 3); }, 420);
     setTimeout(function(){ burst(W * 0.15, H * 0.5); }, 760);
     setTimeout(function(){ burst(W * 0.85, H * 0.5); }, 1050);
@@ -535,8 +638,8 @@ musicToggle.addEventListener('click', function(){
   if (on){
     fadeAudio(0, 700);
   } else {
-    if (music.paused) music.play().catch(function(){});
-    fadeAudio(0.55, 700);
+    if (music.paused) playMusic();
+    fadeAudio(0.8, 700);
   }
 });
 
