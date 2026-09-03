@@ -87,7 +87,7 @@ body{
 .pframe .c-bl{bottom:-2px;left:-2px;border-bottom:3px solid var(--gold);border-left:3px solid var(--gold)}
 .pframe .c-br{bottom:-2px;right:-2px;border-bottom:3px solid var(--gold);border-right:3px solid var(--gold)}
 .pframe .halo{position:absolute;inset:-70px;background:radial-gradient(closest-side,rgba(217,180,92,.14),transparent 72%);
-  z-index:-1;filter:blur(4px)}
+  z-index:-1}
 .pframe img{display:block;width:min(64vw,340px);height:auto;filter:saturate(1.06) contrast(1.04)}
 .pframe.reveal img{animation:photoin 1.7s cubic-bezier(.2,.7,.2,1) both}
 @keyframes photoin{from{opacity:0;filter:saturate(1.06) contrast(1.04) blur(9px);transform:scale(1.05)}
@@ -95,6 +95,8 @@ body{
 .photo-cap{margin-top:2rem;text-align:center}
 .photo-cap .name{font-size:clamp(1.6rem,6vw,2.3rem);font-weight:700;color:var(--gold-bright);letter-spacing:.05em}
 .photo-cap .date{margin-top:.4rem;font-size:.8rem;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-dim)}
+.photo-cap{opacity:0;transform:translateY(14px);transition:opacity .9s ease,transform .9s ease}
+.photo-cap.shown{opacity:1;transform:translateY(0)}
 
 /* ---------- LETTER ---------- */
 .letter-sec{min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:5rem 1.5rem}
@@ -140,7 +142,7 @@ footer .credit{margin-top:1rem;font-size:.62rem;letter-spacing:.14em;text-transf
 .l-scale{transform:scale(var(--sc))}
 .lantern i{display:block;width:26px;height:36px;border-radius:6px 6px 13px 13px;
   background:linear-gradient(#ffe9b0,#d99a45 82%);
-  box-shadow:0 0 26px var(--halo),0 0 60px var(--halo);
+  box-shadow:0 0 14px var(--halo),0 0 30px var(--halo);
   animation:sway var(--sway) ease-in-out infinite alternate}
 .lantern i::before{content:"";position:absolute;top:4px;left:7px;right:7px;height:1px;background:rgba(120,70,20,.35)}
 .lantern i::after{content:"";position:absolute;top:26px;left:10px;right:10px;height:1px;background:rgba(120,70,20,.35)}
@@ -154,8 +156,8 @@ footer .credit{margin-top:1rem;font-size:.62rem;letter-spacing:.14em;text-transf
 
 /* ---------- REDUCED MOTION ---------- */
 @media (prefers-reduced-motion:reduce){
-  .moon,.scroll-hint::after,.flame,.lantern i,#goldDust span,.cursor{animation:none !important}
-  #stage .line{transition:none}
+  .moon,.scroll-hint::after,#flameG,#flameGlow,.lantern i,#goldDust span,.cursor{animation:none !important}
+  .letter .line,.photo-cap{transition:none}
   html{scroll-behavior:auto}
 }
 </style>
@@ -199,7 +201,7 @@ footer .credit{margin-top:1rem;font-size:.62rem;letter-spacing:.14em;text-transf
         <i class="corner c-tl"></i><i class="corner c-tr"></i><i class="corner c-bl"></i><i class="corner c-br"></i>
         <img src="farhan.jpg" alt="Farhan, smiling" width="800" height="1000">
       </div>
-      <div class="photo-cap">
+      <div class="photo-cap" id="photoCap">
         <p class="name">Farhan Sheikh</p>
         <p class="date">3 · 9 · 2026</p>
       </div>
@@ -355,7 +357,8 @@ var stage = document.getElementById('stage');
 var music = document.getElementById('bgm');
 var musicToggle = document.getElementById('musicToggle');
 music.volume = 0;
-var musicPending = false;  // true if play() was rejected once
+var musicWanted = false; // true once Farhan has stepped inside; stays wanted until he mutes
+var heardOnce = false; // flips the day the first note actually leaves the speaker
 
 /* ---- audio fade ---- */
 function fadeAudio(target, ms){
@@ -368,26 +371,40 @@ function fadeAudio(target, ms){
   requestAnimationFrame(step);
 }
 
-/* play with one silent retry: if the browser rejected the first gesture,
-   the next tap anywhere finishes the job */
-function playMusic(){
-  if (!music.paused) return;
-  var p = music.play();
-  if (p && p.catch){
-    p.then(function(){ musicPending = false; fadeAudio(0.8, 2600); })
-     .catch(function(){ musicPending = true; });
-  } else {
-    fadeAudio(0.8, 2600);
-  }
+function syncToggle(on){
+  musicToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+  musicToggle.textContent = on ? '♪' : '–';
+  musicToggle.setAttribute('aria-label', on ? 'Mute music' : 'Play music');
 }
+
+/* the 'playing' event is the only honest signal: it fires when sound
+   actually leaves the speaker, buffering delays included */
+function playMusic(){
+  musicWanted = true;
+  if (!heardOnce) musicToggle.textContent = '…'; // song is on its way
+  var p = null;
+  try { p = music.play(); } catch (e) { p = null; }
+  if (p && p.catch){ p.catch(function(){}); }
+}
+music.addEventListener('playing', function(){
+  heardOnce = true;
+  syncToggle(true);
+  fadeAudio(0.8, 1200); // arrive fast enough to be noticed, soft enough to stay calm
+});
+music.addEventListener('pause', function(){ syncToggle(false); });
+/* any tap, anywhere, revives the music while it is wanted but silent */
 document.addEventListener('pointerdown', function(){
-  if (musicPending) playMusic();
+  if (musicWanted && music.paused){
+    var p = null;
+    try { p = music.play(); } catch (e) { p = null; }
+    if (p && p.catch){ p.catch(function(){}); }
+  }
 }, true);
 
 /* ---- canvases ---- */
 var sky = document.getElementById('sky'), sctx = sky.getContext('2d');
 var conf = document.getElementById('confettiLayer'), cctx = conf.getContext('2d');
-var W, H, DPR = Math.min(window.devicePixelRatio || 1, 2);
+var W, H, DPR = 1; // ponytail: full-res canvas measured 14fps headless; DPR 1 is plenty under starlight
 
 function sizeCanvas(){
   W = window.innerWidth; H = window.innerHeight;
@@ -511,6 +528,7 @@ function runLetter(){
       div.textContent = LINES[idx];
     }
     letterEl.appendChild(div);
+    void div.offsetWidth; // pin the hidden state first, so the .show glide always fires
     requestAnimationFrame(function(){ div.classList.add('show'); });
     idx++;
     setTimeout(nextLine, prefersReduced ? 120 : 850);
@@ -579,14 +597,13 @@ document.getElementById('enterBtn').addEventListener('click', function(){
   setTimeout(function(){ gate.style.display = 'none'; }, 1200);
   stage.classList.add('open');
   document.getElementById('moon').classList.add('risen');
-  document.getElementById('pframe').classList.add('reveal');
   buildDust();
 
   setTimeout(typeTick, 800);
 
   if (!prefersReduced){
-    for (var i = 0; i < 14; i++) setTimeout(spawnLantern, i * 900);
-    setInterval(spawnLantern, 4200);
+    for (var i = 0; i < 6; i++) setTimeout(spawnLantern, i * 1400);
+    setInterval(spawnLantern, 7000);
     setTimeout(function(){ burst(W * 0.2, H * 0.3); }, 1000);
     setTimeout(function(){ burst(W * 0.8, H * 0.35); }, 1400);
   } else {
@@ -601,6 +618,19 @@ if ('IntersectionObserver' in window){
     if (entries[0].isIntersecting){ runLetter(); letterIO.disconnect(); }
   }, {threshold: 0.25});
   letterIO.observe(document.getElementById('letterSec'));
+
+  /* photo reveals itself the moment it is actually looked at — never earlier */
+  var photoIO = new IntersectionObserver(function(entries){
+    if (entries[0].isIntersecting){
+      document.getElementById('pframe').classList.add('reveal');
+      document.getElementById('photoCap').classList.add('shown');
+      photoIO.disconnect();
+    }
+  }, {threshold: 0.35});
+  photoIO.observe(document.querySelector('.photo-sec'));
+} else {
+  document.getElementById('pframe').classList.add('reveal');
+  document.getElementById('photoCap').classList.add('shown');
 }
 
 /* ---- cake / wish ---- */
@@ -632,21 +662,22 @@ cake.addEventListener('keydown', function(e){
 /* ---- music toggle ---- */
 musicToggle.addEventListener('click', function(){
   var on = musicToggle.getAttribute('aria-pressed') === 'true';
-  musicToggle.setAttribute('aria-pressed', on ? 'false' : 'true');
-  musicToggle.textContent = on ? '–' : '♪';
-  musicToggle.setAttribute('aria-label', on ? 'Play music' : 'Mute music');
   if (on){
-    fadeAudio(0, 700);
+    musicWanted = false;
+    syncToggle(false);
+    fadeAudio(0, 500);
+    setTimeout(function(){ if (!musicWanted) music.pause(); }, 550);
   } else {
-    if (music.paused) playMusic();
-    fadeAudio(0.8, 700);
+    syncToggle(true);
+    playMusic();
   }
 });
 
 /* ---- main loop ---- */
 if (!prefersReduced){
+  var lastSky = 0;
   (function loop(t){
-    drawSky(t);
+    if (t - lastSky > 110){ drawSky(t); lastSky = t; } // twinkle needs ~9fps, not 60
     requestAnimationFrame(loop);
   })(0);
 } else {
