@@ -1,0 +1,6 @@
+shot-*.jpg
+.receipts/
+__pycache__/
+verify_*.py
+receipt_*.sh
+vision_check.py
