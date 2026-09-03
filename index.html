@@ -101,8 +101,14 @@ body{
 /* ---------- LETTER ---------- */
 .letter-sec{min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:5rem 1.5rem}
 .letter{max-width:36ch;font-size:clamp(1.15rem,4.2vw,1.55rem);line-height:1.85;color:var(--ink)}
-.letter .line{opacity:0;transform:translateY(16px);transition:opacity .8s ease,transform .8s ease;margin-bottom:.35em}
-.letter .line.show{opacity:1;transform:translateY(0)}
+/* noor wipe: light unveils each line right-to-left, breathes gold, settles calm */
+.letter .line{opacity:0;clip-path:inset(-8% 0 -8% 100%);filter:blur(6px)}
+.letter .line.lit{animation:noor 1.15s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes noor{
+  0%{opacity:0;clip-path:inset(-8% 0 -8% 100%);filter:blur(6px);text-shadow:0 0 0 rgba(240,212,138,0)}
+  45%{opacity:1;filter:blur(0);text-shadow:0 0 24px rgba(240,212,138,.6)}
+  100%{opacity:1;clip-path:inset(-8% 0 -8% 0);filter:blur(0);text-shadow:0 0 0 rgba(240,212,138,0)}
+}
 .letter .line.strong{color:var(--gold-bright);font-weight:600}
 .letter .line.gap{height:1.1em}
 
@@ -157,7 +163,9 @@ footer .credit{margin-top:1rem;font-size:.62rem;letter-spacing:.14em;text-transf
 /* ---------- REDUCED MOTION ---------- */
 @media (prefers-reduced-motion:reduce){
   .moon,.scroll-hint::after,#flameG,#flameGlow,.lantern i,#goldDust span,.cursor{animation:none !important}
-  .letter .line,.photo-cap{transition:none}
+  .letter .line{opacity:1;clip-path:none;filter:none}
+  .letter .line.lit{animation:none}
+  .photo-cap{transition:none;opacity:1;transform:none}
   html{scroll-behavior:auto}
 }
 </style>
@@ -528,8 +536,8 @@ function runLetter(){
       div.textContent = LINES[idx];
     }
     letterEl.appendChild(div);
-    void div.offsetWidth; // pin the hidden state first, so the .show glide always fires
-    requestAnimationFrame(function(){ div.classList.add('show'); });
+    void div.offsetWidth; // pin the veiled state first, so the noor wipe starts from darkness
+    requestAnimationFrame(function(){ div.classList.add('lit'); });
     idx++;
     setTimeout(nextLine, prefersReduced ? 120 : 850);
   })();
